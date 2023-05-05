@@ -1,14 +1,19 @@
 import { create } from 'zustand'
 import { type Question } from '../types'
+import confetti from 'canvas-confetti'
+import { persist } from 'zustand/middleware'
 
 interface State {
   questions: Question[]
   currentQuestion: number
   fetchQuestions: (limit: number) => Promise<void>
   selectAnswer: (questionId: number, answerIndex: number) => void
+  goNextQuestion: () => void
+  goPrevQuestion: () => void
+  reset: () => void
 }
 
-export const useQuestionsStore = create<State>((set, get) => {
+export const useQuestionsStore = create<State>()(persist((set, get) => {
   return {
     questions: [],
     currentQuestion: 0,
@@ -24,6 +29,7 @@ export const useQuestionsStore = create<State>((set, get) => {
       const questionIndex = newQuestions.findIndex((q) => q.id === questionId)
       const questionInfo = newQuestions[questionIndex]
       const isCorrectUserAnswer = questionInfo.correctAnswer === answerIndex
+      if (isCorrectUserAnswer) confetti()
       newQuestions[questionIndex] = {
         ...questionInfo,
         isCorrectUserAnswer,
@@ -31,6 +37,31 @@ export const useQuestionsStore = create<State>((set, get) => {
       }
 
       set({ questions: newQuestions })
+    },
+    goNextQuestion: () => {
+      const { currentQuestion, questions } = get()
+      const newQuestion = currentQuestion + 1
+
+      if (newQuestion < questions.length) {
+        set({ currentQuestion: newQuestion })
+      }
+    },
+
+    goPrevQuestion: () => {
+      const { currentQuestion } = get()
+      const newQuestion = currentQuestion - 1
+
+      if (newQuestion >= 0) {
+        set({ currentQuestion: newQuestion })
+      }
+    },
+    reset: () => {
+      set({
+        questions: [],
+        currentQuestion: 0
+      })
     }
   }
-})
+}, {
+  name: 'questions'
+}))
