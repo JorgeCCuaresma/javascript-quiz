@@ -3,6 +3,7 @@ import { Container, Stack, Typography } from '@mui/material'
 import { LogoJavascript } from './assets/logo'
 import { Start } from './components/Start'
 import { useQuestionsStore } from './store/questions'
+import { Game } from './components/Game'
 
 const App = () => {
   const questions = useQuestionsStore(state => state.questions)
@@ -15,9 +16,8 @@ const App = () => {
           <Typography variant='h3' component='h1'>Javascript Quiz</Typography>
         </Stack>
 
-        <Start />
-        {questions.length === 0 && <Typography>No questions yet</Typography>}
-        {questions.length > 0 && <Typography>{questions.length} question(s)</Typography>}
+        {questions.length === 0 && <Start />}
+        {questions.length > 0 && <Game />}
       </Container>
 
     </main>
